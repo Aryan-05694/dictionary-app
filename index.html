@@ -15,7 +15,6 @@
         }
 
         body {
-            /* A beautiful, vibrant background gradient */
             background: linear-gradient(135deg, #6e8efb 0%, #a777e3 100%);
             font-family: 'Poppins', sans-serif;
             display: flex;
@@ -23,18 +22,21 @@
             align-items: center;
             min-height: 100vh;
             color: #333;
+            /* Adds a little padding so the box doesn't touch the edges on small phones */
+            padding: 20px; 
         }
 
+        /* DEFAULT (Tablet/Base size) */
         .container {
             background-color: #ffffff;
-            width: 90%;
-            max-width: 450px;
+            width: 100%;
+            max-width: 500px;
             padding: 40px 30px;
             border-radius: 24px;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease; /* Smooth transition when resizing */
         }
 
-        /* Modern Search Box */
         .search-box {
             display: flex;
             align-items: center;
@@ -79,7 +81,6 @@
             transform: scale(1.05);
         }
 
-        /* Animation for results */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -106,9 +107,9 @@
             font-weight: 600;
             color: #1f2937;
             text-transform: capitalize;
+            transition: font-size 0.3s ease;
         }
 
-        /* Audio Button */
         .audio-btn {
             background-color: #eef2ff;
             color: #6e8efb;
@@ -122,6 +123,7 @@
             justify-content: center;
             align-items: center;
             transition: all 0.3s ease;
+            flex-shrink: 0; /* Prevents button from squishing */
         }
 
         .audio-btn:hover {
@@ -134,9 +136,9 @@
             align-items: center;
             gap: 15px;
             margin-bottom: 25px;
+            flex-wrap: wrap; /* Allows wrapping on tiny screens */
         }
 
-        /* Styled Badge for Part of Speech */
         .part-of-speech {
             background-color: #fdf2f8;
             color: #db2777;
@@ -185,6 +187,56 @@
             font-size: 14px;
             margin-top: 5px;
         }
+
+
+        /* =========================================
+           RESPONSIVE DESIGN (MEDIA QUERIES)
+           ========================================= */
+
+        /* 1. For Small Mobile Phones (Screens 480px and smaller) */
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 20px; /* Reduce padding inside the box */
+                border-radius: 18px; /* Slightly softer corners */
+            }
+
+            .word-header h3 {
+                font-size: 28px; /* Make the main word smaller so it fits */
+            }
+
+            .search-box input {
+                font-size: 14px; /* Smaller typing text */
+            }
+
+            .word-meaning {
+                font-size: 15px; /* Slightly smaller definition text */
+            }
+        }
+
+        /* 2. For Laptops and Larger Screens (Screens 768px and wider) */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 650px; /* Make the container wider on big screens */
+                padding: 50px 45px; /* Add more breathing room inside the box */
+            }
+
+            .word-header h3 {
+                font-size: 42px; /* Make the main word nice and large */
+            }
+
+            .search-box input {
+                font-size: 18px; /* Larger typing text for desktop */
+            }
+
+            .word-meaning {
+                font-size: 18px; /* Easier reading on big screens */
+                line-height: 1.8; /* More space between lines */
+            }
+            
+            .word-example {
+                font-size: 16px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -207,7 +259,6 @@
         function getWord() {
             let inpWord = inputField.value.trim();
             
-            // Show loading state
             result.classList.remove("active");
             
             if (inpWord === "") {
@@ -224,13 +275,11 @@
                 .then((data) => {
                     let wordData = data[0];
                     
-                    // Extracting Data safely
                     let phoneticText = wordData.phonetic || "";
                     let partOfSpeech = wordData.meanings[0].partOfSpeech || "";
                     let definition = wordData.meanings[0].definitions[0].definition || "No definition found.";
                     let example = wordData.meanings[0].definitions[0].example || "";
 
-                    // Find a valid audio URL from the phonetics array
                     let audioSrc = "";
                     for(let i = 0; i < wordData.phonetics.length; i++) {
                         if(wordData.phonetics[i].audio) {
@@ -239,17 +288,14 @@
                         }
                     }
 
-                    // Create the audio button HTML only if audio exists
                     let audioButtonHTML = audioSrc 
                         ? `<button class="audio-btn" onclick="playSound('${audioSrc}')"><i class="fa-solid fa-volume-high"></i></button>` 
                         : '';
 
-                    // Create the example HTML only if an example exists
                     let exampleHTML = example 
                         ? `<div class="word-example">"${example}"</div>` 
                         : '';
 
-                    // Injecting HTML
                     result.innerHTML = `
                         <div class="word-header">
                             <h3>${inpWord}</h3>
@@ -271,13 +317,11 @@
                 });
         }
 
-        // Play sound function
         function playSound(audioUrl) {
             let audio = new Audio(audioUrl);
             audio.play();
         }
 
-        // Event Listeners
         btn.addEventListener("click", getWord);
         inputField.addEventListener("keyup", (event) => {
             if (event.key === "Enter") {
